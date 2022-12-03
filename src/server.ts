@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request,Router,Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -28,9 +29,37 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-
+  app.get("/filteredimage/", async (req, res) =>{
+    try{
+      let image_url = req.query.image_url.toString();
+      if(!image_url){
+        return res.status(400).send("Invalid URL!"+ "Please enter a valid URL");
+      }
+      
+      const image_file = await filterImageFromURL(image_url);
+      res.sendFile(image_file);
+      res.on('finish', () => deleteLocalFiles([image_file]));
+    } catch {
+      return res.status(500).send({error: "An error occured!"});
+    }
+    });
   //! END @TODO1
-  
+  //app.get("/filteredimage", async(req:Request,res:Response)=>{
+   // let image_url=req.query.image_url.toString();
+  //  if(!image_url){
+  //    return res.status(400)
+  //    .send("Invalid URL." + "Please check the URL and try again");
+      
+ //   }
+  //    let image_file:any=await filterImageFromURL(image_url);
+  //   return res.status(200)
+  //  .sendFile(image_file,()=>{
+     // deleteLocalFiles([image_file])
+ //   }
+  //  );
+    
+    
+ // })
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
